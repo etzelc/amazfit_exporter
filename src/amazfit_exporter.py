@@ -96,7 +96,7 @@ def db_to_tcx(db,dest,begtime):
 						if dato[0] > 0:
 							# Write the HR
 							out.write('      <HeartRateBpm>' + '\n')
-							out.write('       <Value>'+ str(dato[0]) +'</Value>' + '\n')
+							out.write('       <Value>'+ str(int(dato[0])) +'</Value>' + '\n')
 							out.write('      </HeartRateBpm>' + '\n')
 						# push the new step count in and recalculate the cadence
 						if dato[1] > 0:
@@ -147,7 +147,7 @@ def db_to_tcx(db,dest,begtime):
 						if rate is not None and rate[0] > 0:
 							# Write the HR
 							out.write('      <HeartRateBpm>' + '\n')
-							out.write('       <Value>'+ str(rate[0]) +'</Value>' + '\n')
+							out.write('       <Value>'+ str(int(rate[0])) +'</Value>' + '\n')
 							out.write('      </HeartRateBpm>' + '\n')
 							# push the new step count in and recalculate the cadence
 							if rate[1] > 0:
