@@ -24,16 +24,22 @@ def db_to_tcx(db,dest,begtime):
 			# find out what type of activity it is
 			if running_session[2] == 1:
 				activity = "running"
+				garmin_v2_activity = "Running"
 			elif running_session[2] == 2:
 				activity = "walking"
+				garmin_v2_activity = "Running"
 			elif running_session[2] ==3:
 				activity = "trail running"
+				garmin_v2_activity = "Running"
 			elif running_session[2] == 4:
 				activity = "treadmill"
+				garmin_v2_activity = "Running"
 			elif running_session[2] == 5:
 				activity = "bike"
+				garmin_v2_activity = "Biking"
 			else:
-				activity = "unknwon"
+				activity = "unknown"
+				garmin_v2_activity = "Other"
 			#initialize
 			cad = deque([])
 			stride = 0
@@ -62,7 +68,7 @@ def db_to_tcx(db,dest,begtime):
 				out.write('<?xml version="1.0" encoding="UTF-8"?>' + '\n')
 				out.write('<TrainingCenterDatabase xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd" xmlns:ns5="http://www.garmin.com/xmlschemas/ActivityGoals/v1" xmlns:ns3="http://www.garmin.com/xmlschemas/ActivityExtension/v2" xmlns:ns2="http://www.garmin.com/xmlschemas/UserProfile/v2" xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' + '\n')
 				out.write(' <Activities>' + '\n')
-				out.write('  <Activity Sport="'+ activity + '">' + '\n')
+				out.write('  <Activity Sport="'+ garmin_v2_activity + '">' + '\n')
 				out.write('   <Id>'+year+'-'+month+'-'+day+'T'+hour+':'+minute+':'+second+ 'Z'+ '</Id>'+ '\n')
 				out.write('   <Lap StartTime="'+ year+'-'+month+'-'+day+'T'+hour+':'+minute+':'+second +'Z">' + '\n')
 				out.write('    <Track>' + '\n')
