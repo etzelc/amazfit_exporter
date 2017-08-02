@@ -64,7 +64,6 @@ def db_to_tcx(db,dest,begtime):
 				out.write(' <Activities>' + '\n')
 				out.write('  <Activity Sport="'+ activity + '">' + '\n')
 				out.write('   <Id>'+year+'-'+month+'-'+day+'T'+hour+':'+minute+':'+second+ 'Z'+ '</Id>'+ '\n')
-				out.write('   <Creator><Name>Huami Amazfit Pace</Name></Creator>\n')
 				out.write('   <Lap StartTime="'+ year+'-'+month+'-'+day+'T'+hour+':'+minute+':'+second +'Z">' + '\n')
 				out.write('    <Track>' + '\n')
 
@@ -159,6 +158,7 @@ def db_to_tcx(db,dest,begtime):
 						out.write('     </Trackpoint>' + '\n')
 				out.write('    </Track>'+ '\n')
 				out.write('   </Lap>'+ '\n')
+				out.write('   <Creator>\n    <Name>Huami Amazfit Pace</Name>\n   </Creator>\n')
 				out.write('  </Activity>'+ '\n')
 				out.write(' </Activities>'+ '\n')
 				out.write('</TrainingCenterDatabase>'+ '\n')
