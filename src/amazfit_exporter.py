@@ -58,11 +58,7 @@ def db_to_tcx(db,dest,begtime):
 			hour=datetime.datetime.utcfromtimestamp(session_strt).strftime('%H')
 			minute=datetime.datetime.utcfromtimestamp(session_strt).strftime('%M')
 			second=datetime.datetime.utcfromtimestamp(session_strt).strftime('%S')
-			try:
-				os.remove(dest+'/'+year+month+day+'_'+hour+minute+second+'.tcx')
-			except OSError:
-				pass
-			with open(dest+'/'+year+month+day+'_'+hour+minute+second+'Z.tcx', 'a') as out:
+			with open(dest+'/'+year+month+day+'_'+hour+minute+second+'Z.tcx', 'w') as out:
 				# Write Header
 				print(t.strftime('%Y-%m-%d %H:%M:%S', t.localtime(session_strt))+' activity:' + activity + ' syncing...')
 				out.write('<?xml version="1.0" encoding="UTF-8"?>' + '\n')
