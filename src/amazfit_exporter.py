@@ -13,14 +13,15 @@ def db_to_tcx(db,dest,begtime):
 	con = lite.connect(db)
 	with con:
 		cur = con.cursor()
-		cur.execute('SELECT track_id, start_time, type, content from sport_summary where track_id >'+ str(begtime) + ' and (type=1 or type=2 or type=3 or type=4 or type=5)')
+		cur.execute('SELECT track_id, start_time, type, content, end_time from sport_summary where track_id >'+ str(begtime) + ' and (type=1 or type=2 or type=3 or type=4 or type=5)')
 		running_sessions = cur.fetchall()
 		for running_session in running_sessions:
 			# load the summary information JSON
 			content_json = json.loads(running_session[3])
 			# Get the track ID and starting time
 			track_id=running_session[0]
-			tiempo_init=running_session[1]
+			time_init=running_session[1]
+			time_end=running_session[4]
 			# find out what type of activity it is
 			if running_session[2] == 1:
 				activity = "running"
@@ -51,7 +52,7 @@ def db_to_tcx(db,dest,begtime):
 			if step_tot > 0:
 				stride = dist_tot/step_tot
 			dist = 0
-			session_strt = running_session[1]/1000
+			session_strt = time_init/1000
 			year=datetime.datetime.utcfromtimestamp(session_strt).strftime('%Y')
 			month=datetime.datetime.utcfromtimestamp(session_strt).strftime('%m')
 			day=datetime.datetime.utcfromtimestamp(session_strt).strftime('%d')
@@ -67,6 +68,7 @@ def db_to_tcx(db,dest,begtime):
 				out.write('  <Activity Sport="'+ garmin_v2_activity + '">' + '\n')
 				out.write('   <Id>'+year+'-'+month+'-'+day+'T'+hour+':'+minute+':'+second+ 'Z'+ '</Id>'+ '\n')
 				out.write('   <Lap StartTime="'+ year+'-'+month+'-'+day+'T'+hour+':'+minute+':'+second +'Z">' + '\n')
+				out.write('    <TotalTimeSeconds>' + str((time_end - time_init) / 1000) + '</TotalTimeSeconds>\n')
 				out.write('    <Track>' + '\n')
 
 				# Going to get the different datos depending on whether it is a GPX or a indoor stationary activity
@@ -120,7 +122,7 @@ def db_to_tcx(db,dest,begtime):
 						latitud=str(dato[0])
 						longitud=str(dato[1])
 						altitud = str(round(dato[2],1))
-						time=((dato[3] +tiempo_init)/1000)
+						time=((dato[3] + time_init)/1000)
 						year=datetime.datetime.utcfromtimestamp(time).strftime('%Y')
 						month=datetime.datetime.utcfromtimestamp(time).strftime('%m')
 						day=datetime.datetime.utcfromtimestamp(time).strftime('%d')
