@@ -63,7 +63,7 @@ def db_to_tcx(db,dest,begtime):
 				# Write Header
 				print(t.strftime('%Y-%m-%d %H:%M:%S', t.localtime(session_strt))+' activity:' + activity + ' syncing...')
 				out.write('<?xml version="1.0" encoding="UTF-8"?>' + '\n')
-				out.write('<TrainingCenterDatabase xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd" xmlns:ns5="http://www.garmin.com/xmlschemas/ActivityGoals/v1" xmlns:ns3="http://www.garmin.com/xmlschemas/ActivityExtension/v2" xmlns:ns2="http://www.garmin.com/xmlschemas/UserProfile/v2" xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' + '\n')
+				out.write('<TrainingCenterDatabase xsi:schemaLocation="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2 http://www.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd" xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:ns2="http://www.garmin.com/xmlschemas/ActivityExtension/v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' + '\n')
 				out.write(' <Activities>' + '\n')
 				out.write('  <Activity Sport="'+ garmin_v2_activity + '">' + '\n')
 				out.write('   <Id>'+year+'-'+month+'-'+day+'T'+hour+':'+minute+':'+second+ 'Z'+ '</Id>'+ '\n')
