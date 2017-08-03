@@ -13,7 +13,7 @@ def db_to_tcx(db,dest,begtime):
 	con = lite.connect(db)
 	with con:
 		cur = con.cursor()
-		cur.execute('SELECT track_id, start_time, type, content, end_time from sport_summary where track_id >'+ str(begtime) + ' and (type=1 or type=2 or type=3 or type=4 or type=5)')
+		cur.execute('SELECT track_id, start_time, type, content, end_time, calorie from sport_summary where track_id >'+ str(begtime) + ' and (type=1 or type=2 or type=3 or type=4 or type=5)')
 		running_sessions = cur.fetchall()
 		for running_session in running_sessions:
 			# load the summary information JSON
@@ -69,6 +69,12 @@ def db_to_tcx(db,dest,begtime):
 				out.write('   <Id>'+year+'-'+month+'-'+day+'T'+hour+':'+minute+':'+second+ 'Z'+ '</Id>'+ '\n')
 				out.write('   <Lap StartTime="'+ year+'-'+month+'-'+day+'T'+hour+':'+minute+':'+second +'Z">' + '\n')
 				out.write('    <TotalTimeSeconds>' + str((time_end - time_init) / 1000) + '</TotalTimeSeconds>\n')
+				# FIXME Currently no distance is available at this point
+				out.write('    <DistanceMeters>0</DistanceMeters>\n')
+				# FIXME Check if calories value is plausible
+				out.write('    <Calories>' + str(int(running_session[5] / 1000)) + '</Calories>\n')
+				out.write('    <Intensity>Active</Intensity>\n')
+				out.write('    <TriggerMethod>Manual</TriggerMethod>\n')
 				out.write('    <Track>' + '\n')
 
 				# Going to get the different datos depending on whether it is a GPX or a indoor stationary activity
