@@ -32,3 +32,5 @@ adb pull /data/data/com.huami.watch.sport/databases/sport_data.db
  
  -V2.2 Add Device name so Strava will use the barometric sensor readings for elevation.
  
+ -V2.3 Speed up heart rate fetching. Fixes for TCX format.
+ 
