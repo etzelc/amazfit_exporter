@@ -7,23 +7,24 @@ import os
 
 db = sys.argv[1]
 dest = sys.argv[2]
-curtime = round(time.time()*1000)
 lstupdtime = 0
 
-lstupd_file = dest+'\lstupd.txt'
+lstupd_file = os.path.join(dest, "lstupd.txt")
 if os.path.exists(lstupd_file):
 	lstupd_f = open(lstupd_file,'r')
-	lstupdtime = int(lstupd_f.read())
+	lstupdtime = int(lstupd_f.read().strip() or 0)
 	lstupd_f.close()
 
 updtime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(lstupdtime/1000)))
-print ('The last time it was sync: '+ str(updtime))
-upd_begtime = input('Press <Enter> to accept, 0 to resync everything>>') or lstupdtime
-#print (upd_begtime)
+print ('The last synced activity was at: '+ str(updtime))
+upd_begin_time = input('Press <Enter> to accept, 0 to resync everything>>') or (lstupdtime + 1 if lstupdtime > 0 else 0)
 
-amazfit_exporter.db_to_tcx(db,dest,upd_begtime)
+new_lstupdtime = amazfit_exporter.db_to_tcx(db,dest,int(upd_begin_time))
 
-# Complete without crashing, so update the last update file for next time
-lstupd_f = open(lstupd_file,'w')
-lstupd_f.write(str(int(curtime)))
-lstupd_f.close()
+# Complete without crashing, check if new activity was synced, so update the last update file for next time
+if new_lstupdtime > 0:
+	lstupd_f = open(lstupd_file,'w')
+	lstupd_f.write(str(new_lstupdtime))
+	lstupd_f.close()
+else:
+	print ("Nothing to sync")
