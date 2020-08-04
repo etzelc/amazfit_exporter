@@ -22,10 +22,10 @@ The sport_data.db file has to be get from the Amazfit by ADB, there are two meth
 
 or if you have a rooted rom, just execute command
 
-Pace: 
- - adb pull /data/data/com.huami.watch.sport/databases/sport_data.db
-Stratos
- - adb pull /data/data/com.huami.watch.newsport/databases/sport_data.db
+- Pace: 
+   - adb pull /data/data/com.huami.watch.sport/databases/sport_data.db
+- Stratos
+   - adb pull /data/data/com.huami.watch.newsport/databases/sport_data.db
 
 #CHANGELOG
  -V1.0 generates .gpx file for each activity
