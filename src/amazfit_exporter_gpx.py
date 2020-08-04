@@ -144,11 +144,12 @@ def document_to_string(document):
     return etree.tostring(document.getroot(), xml_declaration=True, encoding="UTF-8", pretty_print=True)
 
 def db_to_gpx(dest):
+    print("GPX export:")
     for activity in amazfit_exporter_config.activities:
         document = create_gpx_document()
         add_track(document.getroot(), activity)
         identifier = activity['track_id']
         with open(os.path.join(dest, str(identifier) + ".gpx"), 'wb') as output_file:
-            print(t.strftime(str(identifier) + ' activity: ' + str(activity['type']) + ':' + SPORT_MAPPING.get(activity['type'])))
+            print(t.strftime("\tDate: " + local_date_to_utc(identifier).isoformat() + ", id " + str(identifier) + ', type: ' + str(activity['type']) + ':' + SPORT_MAPPING.get(activity['type'])))
             output_file.write(document_to_string(document))
             output_file.close()

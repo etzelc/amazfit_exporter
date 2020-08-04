@@ -154,6 +154,7 @@ def document_to_string(document):
     return etree.tostring(document.getroot(), xml_declaration=True, encoding="UTF-8", pretty_print=True)
 
 def db_to_tcx(dest):
+    print("TCX export:")
     for activity in amazfit_exporter_config.activities:
         document = create_tcd_document()
         element = create_sub_element(document.getroot(), "Activities")
@@ -161,6 +162,6 @@ def db_to_tcx(dest):
         add_author(document.getroot())
         identifier = activity['track_id']
         with open(os.path.join(dest, str(identifier) + ".tcx"), 'wb') as output_file:
-            print(t.strftime(str(identifier) + ' activity: ' + str(activity['type']) + ':' + SPORT_MAPPING.get(activity['type'])))
+            print(t.strftime("\tDate: " + local_date_to_utc(identifier).isoformat() + ", id " + str(identifier) + ', type: ' + str(activity['type']) + ':' + SPORT_MAPPING.get(activity['type'])))
             output_file.write(document_to_string(document))
             output_file.close()
