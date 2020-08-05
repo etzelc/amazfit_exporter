@@ -1,9 +1,7 @@
 #!/usr/bin/python3
-import sqlite3
-import sys
+import collections
 from time import ctime
 from datetime import datetime
-import time as t
 import os
 from lxml import etree
 import amazfit_exporter_config
@@ -11,14 +9,22 @@ import amazfit_exporter_config
 TRAINING_CENTER_DATABASE_NAMESPACE = "http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2"
 TRAINING_CENTER_DATABASE_LOCATION = "https://www8.garmin.com/xmlschemas/TrainingCenterDatabasev2.xsd"
 
+ACTIVITY_EXTENSION_V2_NAMESPACE = "http://www.garmin.com/xmlschemas/ActivityExtension/v2"
+ACTIVITY_EXTENSION_V2_LOCATION = "https://www8.garmin.com/xmlschemas/ActivityExtensionv2.xsd"
+ACTIVITY_EXTENSION_V2 = "{%s}" % ACTIVITY_EXTENSION_V2_NAMESPACE
+
 XML_SCHEMA_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance"
 
 TDC_NSMAP = {
     None: TRAINING_CENTER_DATABASE_NAMESPACE,
+    "ae": ACTIVITY_EXTENSION_V2_NAMESPACE,
     "xsi": XML_SCHEMA_NAMESPACE}
 
-TDC_SCHEMA_LOCATION = TRAINING_CENTER_DATABASE_NAMESPACE + " " +\
-    TRAINING_CENTER_DATABASE_LOCATION
+TDC_SCHEMA_LOCATION = TRAINING_CENTER_DATABASE_NAMESPACE + " " + \
+    TRAINING_CENTER_DATABASE_LOCATION + " " + \
+    ACTIVITY_EXTENSION_V2_NAMESPACE + " " + \
+    ACTIVITY_EXTENSION_V2_LOCATION
+    
 
 # Map Amazfit DB to TCX values
 SPORT_MAPPING = {
@@ -29,6 +35,8 @@ SPORT_MAPPING = {
     4: "Running", # Indoor Running
     5: "Biking" # Biking
 }
+
+STEPS_FOR_CADENCE = collections.deque(maxlen=60)
 
 # FIXME remove or do
 def local_date_to_utc(date):
@@ -77,6 +85,8 @@ def add_lap(parent_element, activity):
     calories = activity['calorie'] / 1000
     intensity = "Active"
     trigger_method = "Manual"
+    
+    STEPS_FOR_CADENCE.clear()
 
     lap_element = create_sub_element(parent_element, "Lap")
     lap_element.set("StartTime", local_date_to_utc(start_time).isoformat() + "Z")
@@ -120,6 +130,18 @@ def add_trackpoint(parent_element, trackpoint):
     if heart_rate is not None:
         heart_rate_element = create_sub_element(trackpoint_element, "HeartRateBpm")
         create_sub_element(heart_rate_element, "Value", str(int(heart_rate[0])))
+           
+        extensions_element = create_sub_element(trackpoint_element, "Extensions")
+        trackpointextension_element = create_sub_element(extensions_element, "TPX", namespace="ae")
+
+        STEPS_FOR_CADENCE.append(heart_rate[1])
+        cadence = sum(STEPS_FOR_CADENCE)
+        create_sub_element(trackpointextension_element, "RunCadence", text=str(cadence), namespace="ae")
+    else:
+        if STEPS_FOR_CADENCE:
+           STEPS_FOR_CADENCE.popleft()
+        
+
 
 def add_creator(parent_element):
     creator_element = create_sub_element(parent_element, "Creator")
@@ -164,6 +186,6 @@ def db_to_tcx(dest):
         add_author(document.getroot())
         identifier = activity['track_id']
         with open(os.path.join(tcx_dest, str(identifier) + ".tcx"), 'wb') as output_file:
-            print(t.strftime("\tDate: " + local_date_to_utc(identifier).isoformat() + ", id " + str(identifier) + ', type: ' + str(activity['type']) + ':' + SPORT_MAPPING.get(activity['type'])))
+            print("\tDate: " + local_date_to_utc(identifier).isoformat() + ", id " + str(identifier) + ', type: ' + str(activity['type']) + ':' + SPORT_MAPPING.get(activity['type']))
             output_file.write(document_to_string(document))
             output_file.close()

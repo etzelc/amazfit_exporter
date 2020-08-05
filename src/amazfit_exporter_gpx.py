@@ -1,9 +1,6 @@
 #!/usr/bin/python3
-import sqlite3
-import sys
 from time import ctime
 from datetime import datetime
-import time as t
 import os
 from lxml import etree
 import amazfit_exporter_config
@@ -152,6 +149,6 @@ def db_to_gpx(dest):
         add_track(document.getroot(), activity)
         identifier = activity['track_id']
         with open(os.path.join(gpx_dest, str(identifier) + ".gpx"), 'wb') as output_file:
-            print(t.strftime("\tDate: " + local_date_to_utc(identifier).isoformat() + ", id " + str(identifier) + ', type: ' + str(activity['type']) + ':' + SPORT_MAPPING.get(activity['type'])))
+            print("\tDate: " + local_date_to_utc(identifier).isoformat() + ", id " + str(identifier) + ', type: ' + str(activity['type']) + ':' + SPORT_MAPPING.get(activity['type']))
             output_file.write(document_to_string(document))
             output_file.close()
