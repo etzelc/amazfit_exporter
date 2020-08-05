@@ -5,9 +5,11 @@ import datetime
 import time
 import os
 
-db = sys.argv[1]
-dest = sys.argv[2]
+db = os.path.abspath(sys.argv[1])
+dest = os.path.abspath(sys.argv[2])
 lstupdtime = 0
+
+print("Exporting database '" + db + "' to '" + dest + "'")
 
 lstupd_file = os.path.join(dest, "lstupd.txt")
 if os.path.exists(lstupd_file):

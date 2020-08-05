@@ -1,10 +1,7 @@
 #!/usr/bin/python3
 import sqlite3
-import sys
-from time import ctime
+import pathlib
 from datetime import datetime
-import time as t
-import os
 from lxml import etree
 import amazfit_exporter_config
 from amazfit_exporter_tcx import db_to_tcx
@@ -41,24 +38,29 @@ def start_export(db,dest,begin_time):
     new_update_begin_time = -1
 
     # Connect to the sport database
-    db_connection = sqlite3.connect(db)
-    db_connection.row_factory = sqlite3.Row
-    with db_connection:
-        global cursor
-        global activities
-        global trackpoints
-        global heart_rate_data
-        cursor = db_connection.cursor()
-        amazfit_exporter_config.activities = get_activities_data(begin_time)
-        amazfit_exporter_config.trackpoints = get_track_data(begin_time)
-        amazfit_exporter_config.heart_rate_data = get_heart_rate_data(begin_time)
-        db_to_tcx(dest)
-        db_to_gpx(dest)
-        # identifier = amazfit_exporter_config.activities[,]
-        identifier = 0
-        for activity in amazfit_exporter_config.activities:
-            if identifier < activity['track_id']:
-                identifier = activity['track_id']
-        if new_update_begin_time < identifier:
-            new_update_begin_time = identifier 
+    try:
+        db_uri = pathlib.Path(db).as_uri() + "?mode=ro"
+        db_connection = sqlite3.connect(db_uri, uri=True)
+        db_connection.row_factory = sqlite3.Row
+        with db_connection:
+            global cursor
+            global activities
+            global trackpoints
+            global heart_rate_data
+            cursor = db_connection.cursor()
+            amazfit_exporter_config.activities = get_activities_data(begin_time)
+            amazfit_exporter_config.trackpoints = get_track_data(begin_time)
+            amazfit_exporter_config.heart_rate_data = get_heart_rate_data(begin_time)
+            db_to_tcx(dest)
+            db_to_gpx(dest)
+            # identifier = amazfit_exporter_config.activities[,]
+            identifier = 0
+            for activity in amazfit_exporter_config.activities:
+                if identifier < activity['track_id']:
+                    identifier = activity['track_id']
+            if new_update_begin_time < identifier:
+                new_update_begin_time = identifier 
+    except sqlite3.OperationalError:
+        print("Error: Database not readable!")
+    
     return new_update_begin_time
