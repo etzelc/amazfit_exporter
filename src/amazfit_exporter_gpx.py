@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import collections
 from time import ctime
 from datetime import datetime
 import os
@@ -32,6 +33,8 @@ SPORT_MAPPING = {
     4: "Indoor Running", # Indoor Running
     5: "Biking" # Biking
 }
+
+STEPS_FOR_CADENCE = collections.deque(maxlen=60)
 
 # FIXME remove or do
 def local_date_to_utc(date):
@@ -72,6 +75,8 @@ def add_track(parent_element, activity):
 
 def add_segment(parent_element, activity):
 
+    STEPS_FOR_CADENCE.clear()
+
     track_element = create_sub_element(parent_element, "trkseg")
 
     gen = (trackpoint for trackpoint in amazfit_exporter_config.trackpoints if trackpoint['track_id'] == activity['track_id'])
@@ -106,7 +111,13 @@ def add_trackpoint(parent_element, trackpoint):
     trackpointextension_element = create_sub_element(extensions_element, "TrackPointExtension", namespace="gpxtpx")
 
     if heart_rate is not None:
-        heart_rate_element = create_sub_element(trackpointextension_element, "hr", str(int(heart_rate[0])), "gpxtpx")
+        create_sub_element(trackpointextension_element, "hr", str(int(heart_rate[0])), "gpxtpx")
+        STEPS_FOR_CADENCE.append(heart_rate[1])
+        cadence = sum(STEPS_FOR_CADENCE)
+        create_sub_element(trackpointextension_element, "cad", text=str(cadence), namespace="gpxtpx")
+    else:
+        if STEPS_FOR_CADENCE:
+           STEPS_FOR_CADENCE.popleft()        
 
 def add_creator(parent_element):
     creator_element = create_sub_element(parent_element, "Creator")
