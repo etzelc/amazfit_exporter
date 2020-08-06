@@ -19,7 +19,6 @@ The sport_data.db file has to be get from the Amazfit by ADB, there are two meth
 - extract the tar file using winrar
 - navigate to export_data\apps\com.huami.watch.(new)sport\db folder and copy sport_data.db
 
-
 or if you have a rooted rom, just execute command
 
 - Pace: 
@@ -28,6 +27,7 @@ or if you have a rooted rom, just execute command
    - adb pull /data/data/com.huami.watch.newsport/databases/sport_data.db
 
 #CHANGELOG
+
  -V1.0 generates .gpx file for each activity
  
  -V1.1 Added GUI
@@ -42,4 +42,4 @@ or if you have a rooted rom, just execute command
  
  -V2.4 Redesign code
  
- -V2.5 Add GPX export
+ -V2.5 Readded GPX export and cadence
