@@ -100,7 +100,7 @@ def add_trackpoint(parent_element, trackpoint):
     trackpoint_element.set("lat", str(latitude))
     trackpoint_element.set("lon", str(longitude))
     
-    # only use realistic altitude values
+    # use realistic altitude values
     if altitude > -20:
         create_sub_element(trackpoint_element, "ele", str(altitude))
 
@@ -111,7 +111,10 @@ def add_trackpoint(parent_element, trackpoint):
     trackpointextension_element = create_sub_element(extensions_element, "TrackPointExtension", namespace="gpxtpx")
 
     if heart_rate is not None:
-        create_sub_element(trackpointextension_element, "hr", str(int(heart_rate[0])), "gpxtpx")
+        heart_rate_bpm = int(heart_rate[0])
+        # include only positive bpm values
+        if heart_rate_bpm > 0:
+            create_sub_element(trackpointextension_element, "hr", str(heart_rate_bpm), "gpxtpx")
         STEPS_FOR_CADENCE.append(heart_rate[1])
         cadence = sum(STEPS_FOR_CADENCE)
         create_sub_element(trackpointextension_element, "cad", text=str(cadence), namespace="gpxtpx")

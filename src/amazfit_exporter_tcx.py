@@ -128,8 +128,11 @@ def add_trackpoint(parent_element, trackpoint):
         create_sub_element(trackpoint_element, "AltitudeMeters", str(altitude))
 
     if heart_rate is not None:
-        heart_rate_element = create_sub_element(trackpoint_element, "HeartRateBpm")
-        create_sub_element(heart_rate_element, "Value", str(int(heart_rate[0])))
+        heart_rate_bpm = int(heart_rate[0])
+        # include only positive bpm values
+        if heart_rate_bpm > 0:
+            heart_rate_element = create_sub_element(trackpoint_element, "HeartRateBpm")
+            create_sub_element(heart_rate_element, "Value", str(heart_rate_bpm))
            
         extensions_element = create_sub_element(trackpoint_element, "Extensions")
         trackpointextension_element = create_sub_element(extensions_element, "TPX", namespace="ae")
