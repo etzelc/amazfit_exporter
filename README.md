@@ -28,18 +28,18 @@ or if you have a rooted rom, just execute command
 
 #CHANGELOG
 
- -V1.0 generates .gpx file for each activity
+- V1.0 generates .gpx file for each activity
  
- -V1.1 Added GUI
+- V1.1 Added GUI
  
- -V2.0 Changed to TCX format.  Add last sync time option.  Bug fixes.  Add indoor running with no GPS data. Optimize cadence calculation.
+- V2.0 Changed to TCX format.  Add last sync time option.  Bug fixes.  Add indoor running with no GPS data. Optimize cadence calculation.
  
- -V2.1 Add Bike and Trail Running Mode. Remember when last time sync so one can need to update new data. real-time sync feedback.
+- V2.1 Add Bike and Trail Running Mode. Remember when last time sync so one can need to update new data. real-time sync feedback.
  
- -V2.2 Add Device name so Strava will use the barometric sensor readings for elevation.
+- V2.2 Add Device name so Strava will use the barometric sensor readings for elevation.
  
- -V2.3 Speed up heart rate fetching. Fixes for TCX format.
+- V2.3 Speed up heart rate fetching. Fixes for TCX format.
  
- -V2.4 Redesign code
+- V2.4 Redesign code
  
- -V2.5 Readded GPX export and cadence
+- V2.5 Readded GPX export and cadence
