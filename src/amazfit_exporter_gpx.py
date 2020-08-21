@@ -8,21 +8,29 @@ import amazfit_exporter_config
 
 GPX_NAMESPACE = "http://www.topografix.com/GPX/1/1"
 GPX_LOCATION = "https://www.topografix.com/GPX/1/1/gpx.xsd"
-GPX_TRACK_POINT_EXTENSION_NAMESPACE = "http://www.garmin.com/xmlschemas/TrackPointExtension/v1"
-GPX_TRACK_POINT_EXTENSION = "{%s}" % GPX_TRACK_POINT_EXTENSION_NAMESPACE
-GPX_TRACK_POINT_EXTENSION_LOCATION = "https://www8.garmin.com/xmlschemas/TrackPointExtensionv1.xsd"
+
+TRACK_POINT_EXTENSION_NAMESPACE = "http://www.garmin.com/xmlschemas/TrackPointExtension/v1"
+TRACK_POINT_EXTENSION = "{%s}" % TRACK_POINT_EXTENSION_NAMESPACE
+TRACK_POINT_EXTENSION_LOCATION = "https://www8.garmin.com/xmlschemas/TrackPointExtensionv1.xsd"
+
+GPXDATA_EXTENSION_NAMESPACE = "http://www.cluetrust.com/XML/GPXDATA/1/0"
+GPXDATA_EXTENSION = "{%s}" %  GPXDATA_EXTENSION_NAMESPACE
+GPXDATA_EXTENSION_LOCATION = "https://www.cluetrust.com/Schemas/gpxdata10.xsd"
 
 XML_SCHEMA_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance"
     
 GPX_NSMAP = {
     None: GPX_NAMESPACE,
     "xsi": XML_SCHEMA_NAMESPACE,
-    "gpxtpx": GPX_TRACK_POINT_EXTENSION_NAMESPACE}
+    "gpxtpx": TRACK_POINT_EXTENSION_NAMESPACE,
+    "gpxdata": GPXDATA_EXTENSION_NAMESPACE}
 
 GPX_SCHEMA_LOCATION = GPX_NAMESPACE + " " +\
     GPX_LOCATION + " " +\
-    GPX_TRACK_POINT_EXTENSION_NAMESPACE + " " +\
-    GPX_TRACK_POINT_EXTENSION_LOCATION
+    TRACK_POINT_EXTENSION_NAMESPACE + " " +\
+    TRACK_POINT_EXTENSION_LOCATION + " " +\
+    GPXDATA_EXTENSION_NAMESPACE + " " +\
+    GPXDATA_EXTENSION_LOCATION
     
 # Map Amazfit DB to strings
 SPORT_MAPPING = {
@@ -115,9 +123,11 @@ def add_trackpoint(parent_element, trackpoint):
         # include only positive bpm values
         if heart_rate_bpm > 0:
             create_sub_element(trackpointextension_element, "hr", str(heart_rate_bpm), "gpxtpx")
+            create_sub_element(extensions_element, "hr", str(heart_rate_bpm), "gpxdata")
         STEPS_FOR_CADENCE.append(heart_rate[1])
         cadence = sum(STEPS_FOR_CADENCE)
         create_sub_element(trackpointextension_element, "cad", text=str(cadence), namespace="gpxtpx")
+        create_sub_element(extensions_element, "cadence", text=str(cadence), namespace="gpxdata")
     else:
         if STEPS_FOR_CADENCE:
            STEPS_FOR_CADENCE.popleft()        
