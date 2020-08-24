@@ -2,6 +2,7 @@
 import collections
 from time import ctime
 from datetime import datetime
+import logging
 import os
 from lxml import etree
 import amazfit_exporter_config
@@ -31,20 +32,11 @@ GPX_SCHEMA_LOCATION = GPX_NAMESPACE + " " +\
     TRACK_POINT_EXTENSION_LOCATION + " " +\
     GPXDATA_EXTENSION_NAMESPACE + " " +\
     GPXDATA_EXTENSION_LOCATION
-    
-# Map Amazfit DB to strings
-SPORT_MAPPING = {
-    None: "Other",
-    1: "Running", # Running
-    2: "Walking", # Walking
-    3: "Trail Running", # Trail Running
-    4: "Indoor Running", # Indoor Running
-    5: "Biking" # Biking
-}
 
 STEPS_FOR_CADENCE = collections.deque(maxlen=60)
 
-# FIXME remove or do
+logger = logging.getLogger(__name__)
+
 def local_date_to_utc(date):
     return datetime.utcfromtimestamp(int(date / 1000))
 
@@ -70,7 +62,7 @@ def create_gpx_document():
     return document
 
 def add_track(parent_element, activity):
-    sport = SPORT_MAPPING.get(activity['type'], "Other")
+    sport = amazfit_exporter_config.SPORT_MAPPING.get(activity['type'], "Other")
     # Use track_id (the starting time) as identifier
     identifier = local_date_to_utc(activity['track_id'])
 
@@ -165,6 +157,7 @@ def document_to_string(document):
     return etree.tostring(document.getroot(), xml_declaration=True, encoding="UTF-8", pretty_print=True)
 
 def db_to_gpx(dest):
+    logger.info("Started gpx export")
     print("GPX export:")
     gpx_dest = dest + "/GPX/"
     os.makedirs(os.path.dirname(gpx_dest), exist_ok=True)
@@ -173,6 +166,7 @@ def db_to_gpx(dest):
         add_track(document.getroot(), activity)
         identifier = activity['track_id']
         with open(os.path.join(gpx_dest, str(identifier) + ".gpx"), 'wb') as output_file:
-            print("\tDate: " + local_date_to_utc(identifier).isoformat() + ", id " + str(identifier) + ', type: ' + str(activity['type']) + ':' + SPORT_MAPPING.get(activity['type']))
+            print("\tDate: " + local_date_to_utc(identifier).isoformat() + ", id: " + str(identifier) + ', type: ' + str(activity['type']) + ':' + amazfit_exporter_config.SPORT_MAPPING.get(activity['type']))
             output_file.write(document_to_string(document))
             output_file.close()
+    logger.info("Finished gpx export")
