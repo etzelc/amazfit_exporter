@@ -2,6 +2,7 @@
 import collections
 from time import ctime
 from datetime import datetime
+import logging
 import os
 from lxml import etree
 import amazfit_exporter_config
@@ -24,21 +25,13 @@ TDC_SCHEMA_LOCATION = TRAINING_CENTER_DATABASE_NAMESPACE + " " + \
     TRAINING_CENTER_DATABASE_LOCATION + " " + \
     ACTIVITY_EXTENSION_V2_NAMESPACE + " " + \
     ACTIVITY_EXTENSION_V2_LOCATION
-    
-
-# Map Amazfit DB to TCX values
-SPORT_MAPPING = {
-    None: "Other",
-    1: "Running", # Running
-    2: "Running", # Walking
-    3: "Running", # Trail Running
-    4: "Running", # Indoor Running
-    5: "Biking" # Biking
-}
 
 STEPS_FOR_CADENCE = collections.deque(maxlen=60)
 
-# FIXME remove or do
+sport_type = None
+
+logger = logging.getLogger(__name__)
+
 def local_date_to_utc(date):
     return datetime.utcfromtimestamp(int(date / 1000))
 
@@ -62,14 +55,15 @@ def create_tcd_document():
     return document
 
 def add_activity(parent_element, activity):
+    global sport_type
     # Try to map Amazfit types to TCX types. If there's no match use "Other"
-    sport = SPORT_MAPPING.get(activity['type'], "Other")
+    sport_type = amazfit_exporter_config.SPORT_MAPPING.get(activity['type'], "Other")
     # Use track_id (the starting time) as identifier
     identifier = local_date_to_utc(activity['track_id'])
 
     activity_element = create_sub_element(parent_element, "Activity")
 
-    activity_element.set("Sport", sport)
+    activity_element.set("Sport", sport_type)
     create_sub_element(activity_element, "Id", identifier.isoformat() + "Z")
 
     # Currently every activity has only one lap
@@ -133,15 +127,16 @@ def add_trackpoint(parent_element, trackpoint):
         if heart_rate_bpm > 0:
             heart_rate_element = create_sub_element(trackpoint_element, "HeartRateBpm")
             create_sub_element(heart_rate_element, "Value", str(heart_rate_bpm))
-           
-        extensions_element = create_sub_element(trackpoint_element, "Extensions")
-        trackpointextension_element = create_sub_element(extensions_element, "TPX", namespace="ae")
 
-        STEPS_FOR_CADENCE.append(heart_rate[1])
-        cadence = sum(STEPS_FOR_CADENCE)
-        create_sub_element(trackpointextension_element, "RunCadence", text=str(cadence), namespace="ae")
+        # cadence just for sport type 'Running'
+        if sport_type == "Running":            
+            extensions_element = create_sub_element(trackpoint_element, "Extensions")
+            trackpointextension_element = create_sub_element(extensions_element, "TPX", namespace="ae")
+            STEPS_FOR_CADENCE.append(heart_rate[1])
+            cadence = sum(STEPS_FOR_CADENCE)
+            create_sub_element(trackpointextension_element, "RunCadence", text=str(cadence), namespace="ae")
     else:
-        if STEPS_FOR_CADENCE:
+        if sport_type == "Running" and STEPS_FOR_CADENCE:
            STEPS_FOR_CADENCE.popleft()
         
 
@@ -179,16 +174,19 @@ def document_to_string(document):
     return etree.tostring(document.getroot(), xml_declaration=True, encoding="UTF-8", pretty_print=True)
 
 def db_to_tcx(dest):
+    logger.info("Started tcx export")
     print("TCX export:")
     tcx_dest = dest + "/TCX/"
     os.makedirs(os.path.dirname(tcx_dest), exist_ok=True)
     for activity in amazfit_exporter_config.activities:
+        logger.debug("Activity: %r", tuple(activity))
         document = create_tcd_document()
         element = create_sub_element(document.getroot(), "Activities")
         add_activity(element, activity)
         add_author(document.getroot())
         identifier = activity['track_id']
         with open(os.path.join(tcx_dest, str(identifier) + ".tcx"), 'wb') as output_file:
-            print("\tDate: " + local_date_to_utc(identifier).isoformat() + ", id " + str(identifier) + ', type: ' + str(activity['type']) + ':' + SPORT_MAPPING.get(activity['type']))
+            print("\tDate: " + local_date_to_utc(identifier).isoformat() + ", id: " + str(identifier) + ', type: ' + str(activity['type']) + ':' + amazfit_exporter_config.SPORT_MAPPING.get(activity['type']))
             output_file.write(document_to_string(document))
-            output_file.close()
+            output_file.close()  
+    logger.info("Finished tcx export")
