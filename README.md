@@ -26,7 +26,7 @@ or if you have a rooted rom, just execute command
 - Stratos
    - adb pull /data/data/com.huami.watch.newsport/databases/sport_data.db
 
-#CHANGELOG
+# CHANGELOG
 
 - V1.0 generates .gpx file for each activity
  
@@ -43,3 +43,5 @@ or if you have a rooted rom, just execute command
 - V2.4 Redesign code
  
 - V2.5 Readded GPX export and cadence
+
+- V2.6 Add biking export for Stratos
