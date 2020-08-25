@@ -28,6 +28,8 @@ TDC_SCHEMA_LOCATION = TRAINING_CENTER_DATABASE_NAMESPACE + " " + \
 
 STEPS_FOR_CADENCE = collections.deque(maxlen=60)
 
+sport_type = None
+
 logger = logging.getLogger(__name__)
 
 def local_date_to_utc(date):
@@ -53,14 +55,15 @@ def create_tcd_document():
     return document
 
 def add_activity(parent_element, activity):
+    global sport_type
     # Try to map Amazfit types to TCX types. If there's no match use "Other"
-    sport = amazfit_exporter_config.SPORT_MAPPING.get(activity['type'], "Other")
+    sport_type = amazfit_exporter_config.SPORT_MAPPING.get(activity['type'], "Other")
     # Use track_id (the starting time) as identifier
     identifier = local_date_to_utc(activity['track_id'])
 
     activity_element = create_sub_element(parent_element, "Activity")
 
-    activity_element.set("Sport", sport)
+    activity_element.set("Sport", sport_type)
     create_sub_element(activity_element, "Id", identifier.isoformat() + "Z")
 
     # Currently every activity has only one lap
@@ -124,15 +127,16 @@ def add_trackpoint(parent_element, trackpoint):
         if heart_rate_bpm > 0:
             heart_rate_element = create_sub_element(trackpoint_element, "HeartRateBpm")
             create_sub_element(heart_rate_element, "Value", str(heart_rate_bpm))
-           
-        extensions_element = create_sub_element(trackpoint_element, "Extensions")
-        trackpointextension_element = create_sub_element(extensions_element, "TPX", namespace="ae")
 
-        STEPS_FOR_CADENCE.append(heart_rate[1])
-        cadence = sum(STEPS_FOR_CADENCE)
-        create_sub_element(trackpointextension_element, "RunCadence", text=str(cadence), namespace="ae")
+        # cadence just for sport type 'Running'
+        if sport_type == "Running":            
+            extensions_element = create_sub_element(trackpoint_element, "Extensions")
+            trackpointextension_element = create_sub_element(extensions_element, "TPX", namespace="ae")
+            STEPS_FOR_CADENCE.append(heart_rate[1])
+            cadence = sum(STEPS_FOR_CADENCE)
+            create_sub_element(trackpointextension_element, "RunCadence", text=str(cadence), namespace="ae")
     else:
-        if STEPS_FOR_CADENCE:
+        if sport_type == "Running" and STEPS_FOR_CADENCE:
            STEPS_FOR_CADENCE.popleft()
         
 

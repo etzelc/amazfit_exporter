@@ -35,6 +35,8 @@ GPX_SCHEMA_LOCATION = GPX_NAMESPACE + " " +\
 
 STEPS_FOR_CADENCE = collections.deque(maxlen=60)
 
+sport_type = None
+
 logger = logging.getLogger(__name__)
 
 def local_date_to_utc(date):
@@ -62,13 +64,14 @@ def create_gpx_document():
     return document
 
 def add_track(parent_element, activity):
-    sport = amazfit_exporter_config.SPORT_MAPPING.get(activity['type'], "Other")
+    global sport_type
+    sport_type = amazfit_exporter_config.SPORT_MAPPING.get(activity['type'], "Other")
     # Use track_id (the starting time) as identifier
     identifier = local_date_to_utc(activity['track_id'])
 
     track_element = create_sub_element(parent_element, "trk")
 
-    name_element  = create_sub_element(track_element, "name", sport + " at " + identifier.isoformat())
+    name_element  = create_sub_element(track_element, "name", sport_type + " at " + identifier.isoformat())
 
     # Currently every activity has only one segment
     add_segment(track_element, activity)
@@ -106,22 +109,24 @@ def add_trackpoint(parent_element, trackpoint):
 
     create_sub_element(trackpoint_element, "time", timestamp.isoformat() + "Z")
 
-    extensions_element = create_sub_element(trackpoint_element, "extensions")
-    
-    trackpointextension_element = create_sub_element(extensions_element, "TrackPointExtension", namespace="gpxtpx")
-
     if heart_rate is not None:
+        extensions_element = create_sub_element(trackpoint_element, "extensions")
+        trackpointextension_element = create_sub_element(extensions_element, "TrackPointExtension", namespace="gpxtpx")
+        
         heart_rate_bpm = int(heart_rate[0])
         # include only positive bpm values
         if heart_rate_bpm > 0:
             create_sub_element(trackpointextension_element, "hr", str(heart_rate_bpm), "gpxtpx")
             create_sub_element(extensions_element, "hr", str(heart_rate_bpm), "gpxdata")
-        STEPS_FOR_CADENCE.append(heart_rate[1])
-        cadence = sum(STEPS_FOR_CADENCE)
-        create_sub_element(trackpointextension_element, "cad", text=str(cadence), namespace="gpxtpx")
-        create_sub_element(extensions_element, "cadence", text=str(cadence), namespace="gpxdata")
+        
+        # cadence just for sport type 'Running'
+        if sport_type == "Running":   
+            STEPS_FOR_CADENCE.append(heart_rate[1])
+            cadence = sum(STEPS_FOR_CADENCE)
+            create_sub_element(trackpointextension_element, "cad", text=str(cadence), namespace="gpxtpx")
+            create_sub_element(extensions_element, "cadence", text=str(cadence), namespace="gpxdata")
     else:
-        if STEPS_FOR_CADENCE:
+        if sport_type == "Running" and STEPS_FOR_CADENCE:
            STEPS_FOR_CADENCE.popleft()        
 
 def add_creator(parent_element):
