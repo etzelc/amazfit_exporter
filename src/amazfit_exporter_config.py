@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import logging, sys
 
-logging.basicConfig(stream=sys.stderr, level=logging.INFO)
+logging.basicConfig(stream=sys.stderr, level=logging.WARNING)
 
 activities = []
 trackpoint_data = []
