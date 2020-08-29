@@ -26,7 +26,9 @@ TDC_SCHEMA_LOCATION = TRAINING_CENTER_DATABASE_NAMESPACE + " " + \
     ACTIVITY_EXTENSION_V2_NAMESPACE + " " + \
     ACTIVITY_EXTENSION_V2_LOCATION
 
-STEPS_FOR_CADENCE = collections.deque(maxlen=60)
+# Trackpoints are recorded every 1-3 seconds
+# The last 20 values should be sufficient to calculate cadence
+STEPS_FOR_CADENCE = collections.deque(maxlen=20)
 
 sport_type = None
 
@@ -133,7 +135,7 @@ def add_trackpoint(parent_element, trackpoint):
             extensions_element = create_sub_element(trackpoint_element, "Extensions")
             trackpointextension_element = create_sub_element(extensions_element, "TPX", namespace="ae")
             STEPS_FOR_CADENCE.append(heart_rate[1])
-            cadence = sum(STEPS_FOR_CADENCE)
+            cadence = int(sum(STEPS_FOR_CADENCE) * (60 / len(STEPS_FOR_CADENCE)))
             create_sub_element(trackpointextension_element, "RunCadence", text=str(cadence), namespace="ae")
     else:
         if sport_type == "Running" and STEPS_FOR_CADENCE:

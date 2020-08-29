@@ -45,3 +45,5 @@ or if you have a rooted rom, just execute command
 - V2.5 Readded GPX export and cadence
 
 - V2.6 Add biking export for Stratos
+
+- V2.7 Use less trackpoints to calculate cadence

@@ -33,7 +33,9 @@ GPX_SCHEMA_LOCATION = GPX_NAMESPACE + " " +\
     GPXDATA_EXTENSION_NAMESPACE + " " +\
     GPXDATA_EXTENSION_LOCATION
 
-STEPS_FOR_CADENCE = collections.deque(maxlen=60)
+# Trackpoints are recorded every 1-3 seconds
+# The last 20 values should be sufficient to calculate cadence
+STEPS_FOR_CADENCE = collections.deque(maxlen=20)
 
 sport_type = None
 
@@ -122,7 +124,7 @@ def add_trackpoint(parent_element, trackpoint):
         # cadence just for sport type 'Running'
         if sport_type == "Running":   
             STEPS_FOR_CADENCE.append(heart_rate[1])
-            cadence = sum(STEPS_FOR_CADENCE)
+            cadence = int(sum(STEPS_FOR_CADENCE) * (60 / len(STEPS_FOR_CADENCE)))
             create_sub_element(trackpointextension_element, "cad", text=str(cadence), namespace="gpxtpx")
             create_sub_element(extensions_element, "cadence", text=str(cadence), namespace="gpxdata")
     else:
