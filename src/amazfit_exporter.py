@@ -23,7 +23,7 @@ def get_activities_data(begin_time):
     return cursor.fetchall()
 
 def get_track_data(begin_time):
-    cursor.execute('SELECT track_id, latitude, longitude, altitude, timestamp FROM location_data WHERE track_id>=' + str(begin_time) + ' AND point_type > 0')
+    cursor.execute('SELECT track_id, cast(latitude as text) as latitude, cast(longitude as text) as longitude, altitude, timestamp FROM location_data WHERE track_id>=' + str(begin_time) + ' AND point_type > 0')
     return cursor.fetchall()
 
 def get_heart_rate_data(begin_time):

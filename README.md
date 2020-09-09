@@ -49,3 +49,5 @@ or if you have a rooted rom, just execute command
 - V2.7 Use less trackpoints to calculate cadence
 
 - V2.8 Interpolate cadence if value is missing
+
+- V2.9 Read latitude and longitude as strings from the database to avoid floating point approximation
