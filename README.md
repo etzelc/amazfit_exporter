@@ -47,3 +47,5 @@ or if you have a rooted rom, just execute command
 - V2.6 Add biking export for Stratos
 
 - V2.7 Use less trackpoints to calculate cadence
+
+- V2.8 Interpolate cadence if value is missing
