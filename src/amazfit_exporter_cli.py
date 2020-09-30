@@ -1,12 +1,22 @@
 #!/usr/bin/python3
 import sys
+import argparse
 import amazfit_exporter
+import amazfit_exporter_config
 import datetime
 import time
 import os
 
-db = os.path.abspath(sys.argv[1])
-dest = os.path.abspath(sys.argv[2])
+parser = argparse.ArgumentParser(description='Export data from Amazfit Pace and Stratos database.')
+parser.add_argument('database', type=str, help='the path to the database')
+parser.add_argument('-o', '--output', dest='output', type=str, default='./', help="the export destination path (default: './')")
+
+parser.add_argument('--version', action='version', version='Amazfit Exporter 2.10')
+  
+args = parser.parse_args()
+
+db = os.path.abspath(args.database)
+dest = os.path.abspath(args.output)
 lstupdtime = 0
 
 print("Exporting database '" + db + "' to '" + dest + "'")
