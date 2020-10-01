@@ -3,6 +3,17 @@ import logging, sys
 
 logging.basicConfig(stream=sys.stderr, level=logging.WARNING)
 
+AVAILABLE_EXPORT_FORMATS = {
+    'TCX': 'Training Center XML',
+    'GPX': 'GPS Exchange Format'
+}
+
+export_formats = AVAILABLE_EXPORT_FORMATS.keys()
+
+no_heart_rate = False
+no_cadence = False
+no_calories = False
+
 activities = []
 trackpoint_data = []
 heart_rate_data = []
@@ -21,3 +32,4 @@ SPORT_MAPPING = {
     9: "Biking", # Outdoor Biking
     10: "Biking", # Indoor Biking
 }
+

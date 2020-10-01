@@ -56,8 +56,10 @@ def start_export(db,dest,begin_time):
             amazfit_exporter_config.activities = get_activities_data(begin_time)
             amazfit_exporter_config.trackpoints = get_track_data(begin_time)
             amazfit_exporter_config.heart_rate_data = get_heart_rate_data(begin_time)
-            db_to_tcx(dest)
-            db_to_gpx(dest)
+            if 'TCX' in amazfit_exporter_config.export_formats:
+                db_to_tcx(dest)
+            if 'GPX' in amazfit_exporter_config.export_formats:
+                db_to_gpx(dest)
             # search for highest track_id as new update begin time
             new_update_begin_time = max([act[0] for act in amazfit_exporter_config.activities], default=-1) 
             logger.info("Highest track id found %d", new_update_begin_time)

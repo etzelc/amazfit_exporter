@@ -112,25 +112,34 @@ def add_trackpoint(parent_element, trackpoint):
     create_sub_element(trackpoint_element, "time", timestamp.isoformat() + "Z")
 
     if heart_rate is not None:
-        extensions_element = create_sub_element(trackpoint_element, "extensions")
-        trackpointextension_element = create_sub_element(extensions_element, "TrackPointExtension", namespace="gpxtpx")
+        # the creation of the extension elements is done on demand, since there
+        # are many conditions if hr and cadence elements are created. This solves
+        # the problem of empty extension elements.
+        extensions_element = None
+        trackpointextension_element = None
         
         heart_rate_bpm = int(heart_rate[0])
         # include only positive bpm values
-        if heart_rate_bpm > 0:
+        if not amazfit_exporter_config.no_heart_rate and heart_rate_bpm > 0:
+            if extensions_element is None:
+                extensions_element = create_sub_element(trackpoint_element, "extensions")
+                trackpointextension_element = create_sub_element(extensions_element, "TrackPointExtension", namespace="gpxtpx")
             create_sub_element(trackpointextension_element, "hr", str(heart_rate_bpm), "gpxtpx")
             create_sub_element(extensions_element, "hr", str(heart_rate_bpm), "gpxdata")
         
         # cadence just for sport type 'Running'
-        if sport_type == "Running":   
+        if not amazfit_exporter_config.no_cadence and sport_type == "Running":   
+            if extensions_element is None:
+                extensions_element = create_sub_element(trackpoint_element, "extensions")
+                trackpointextension_element = create_sub_element(extensions_element, "TrackPointExtension", namespace="gpxtpx")
             STEPS_FOR_CADENCE.append(heart_rate[1])
             cadence = int(sum(STEPS_FOR_CADENCE) * (60 / len(STEPS_FOR_CADENCE)))
             create_sub_element(trackpointextension_element, "cad", text=str(cadence), namespace="gpxtpx")
             create_sub_element(extensions_element, "cadence", text=str(cadence), namespace="gpxdata")
     else:
         # sometimes values are missing. Interpolate cadence from the last recorded values.
-        if sport_type == "Running" and STEPS_FOR_CADENCE:
-            logger.debug("HeartRate and cadence value missing. Interpolate cadence.")
+        if not amazfit_exporter_config.no_cadence and sport_type == "Running" and STEPS_FOR_CADENCE:
+            logger.debug("Heart rate and cadence value missing. Interpolate cadence.")
             extensions_element = create_sub_element(trackpoint_element, "extensions")
             trackpointextension_element = create_sub_element(extensions_element, "TrackPointExtension", namespace="gpxtpx")
             cadence = int(sum(STEPS_FOR_CADENCE) * (60 / len(STEPS_FOR_CADENCE)))
