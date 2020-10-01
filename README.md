@@ -1,8 +1,8 @@
-# amazfit_exporter
+# Amazfit Exporter
 
-This python script helps you to export your Huami Amazfit Pace and Stratos activities to other platforms like RUNALYZE, Strava, Runkeeper, Runtastic, ...
+This python script helps you to export your activities recorded on the Huami Amazfit Pace and Stratos to other platforms like RUNALYZE, Strava, Runkeeper, Runtastic, ...
 
-## usage
+## Usage
 
 ```
 amazfit_exporter_cli.py [-h] [-o PATH] [--export-formats FORMAT [FORMAT ...]] [--no-hr] [--no-cadence]
@@ -27,20 +27,20 @@ optional arguments:
   --version             show program's version number and exit
 ```
 
-### Examples
+### Usage Examples
 
 `py amazfit_exporter_cli.py sport_data.db`
 
-`py amazfit_exporter_cli.py sport_data.db -o /path/to/export/folder --export-formats TCX GPX`
+`py amazfit_exporter_cli.py sport_data.db -o /path/to/export/folder`
 
 `py amazfit_exporter_cli.py sport_data.db --export-formats TCX --no-calories`
 
-## Load database from device
+## Load Database from Watch
 
-The sport_data.db file has to be downloaded from the Amazfit Pace or Stratos with ADB. There is a more complex method for non-rooted devices and a very simple for rooted roms. 
+The `sport_data.db` file has to be downloaded from the Amazfit Pace or Stratos with ADB. There is a more complex method for non-rooted devices and a very simple for rooted roms. 
 
-### non-rooted devices
-1. connect Pace or Stratos to the pc
+### Non-rooted Device
+1. connect Pace or Stratos to the computer
 2. execute adb command
    - Pace: `adb backup -f /export_data.ab -noapk com.huami.watch.sport`
    - Stratos `adb backup -f /export_data.ab -noapk com.huami.watch.newsport`
@@ -48,13 +48,13 @@ The sport_data.db file has to be downloaded from the Amazfit Pace or Stratos wit
 4. extract the tar file using tar, 7-Zip, winRAR, ...
 5. navigate to export_data\apps\com.huami.watch.(new)sport\db folder and copy sport_data.db
 
-### rooted rom
-1. connect amazfit to pc
+### Rooted Rom
+1. connect Pace or Stratos to the computer
 2. execute adb command
    - Pace: `adb pull /data/data/com.huami.watch.sport/databases/sport_data.db`
    - Stratos `adb pull /data/data/com.huami.watch.newsport/databases/sport_data.db`
 
-## CHANGELOG
+## Changelog
 
 - V1.0 generates .gpx file for each activity
  
