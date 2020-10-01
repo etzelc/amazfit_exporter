@@ -1,32 +1,60 @@
 # amazfit_exporter
-This python script helps you to export your huami Amazfit activities to other platforms like Strava,Runtastic...
 
-At current version the script can be used in both CLI or GUI modes:
+This python script helps you to export your Huami Amazfit Pace and Stratos activities to other platforms like RUNALYZE, Strava, Runkeeper, Runtastic, ...
 
-For CLI:
-- py amazfit_exporter_cli.py sport_data.db /path/to/destination/folder
+## usage
 
-For GUI: (does not work with the latest version yet)
-- py amazfit_exporter_gui.py
+```
+amazfit_exporter_cli.py [-h] [-o PATH] [--export-formats FORMAT [FORMAT ...]] [--no-hr] [--no-cadence]
+                               [--no-calories] [-v] [-d] [--version]
+                               database
 
-The sport_data.db file has to be get from the Amazfit by ADB, there are two methods for this
-- connect amazfit to pc
-- Pace:
-   - adb backup -f /export_data.ab -noapk com.huami.watch.sport
-- Stratos
-   - adb backup -f /export_data.ab -noapk com.huami.watch.newsport
-- java -jar abe.jar unpack export_data.ab export_data.tar (abe is android backup extractor which is included inside tools folder)
-- extract the tar file using winrar
-- navigate to export_data\apps\com.huami.watch.(new)sport\db folder and copy sport_data.db
+positional arguments:
+  database              path to the database
 
-or if you have a rooted rom, just execute command
+optional arguments:
+  -h, --help            show this help message and exit
+  -o PATH, --output PATH
+                        path to the output directory (default: './')
+  --export-formats FORMAT [FORMAT ...]
+                        define list of export formats (default: all). Available formats: TCX, GPX
+  --no-hr, --no-heart-rate
+                        disable heart rate export
+  --no-cadence          disable cadence export
+  --no-calories         disable calories export
+  -v, --verbose         print more information about runtime progress
+  -d, --debug           print debug information about runtime progress. This is more detailed than '--verbose'
+  --version             show program's version number and exit
+```
 
-- Pace: 
-   - adb pull /data/data/com.huami.watch.sport/databases/sport_data.db
-- Stratos
-   - adb pull /data/data/com.huami.watch.newsport/databases/sport_data.db
+### Examples
 
-# CHANGELOG
+`py amazfit_exporter_cli.py sport_data.db`
+
+`py amazfit_exporter_cli.py sport_data.db -o /path/to/export/folder --export-formats TCX GPX`
+
+`py amazfit_exporter_cli.py sport_data.db --export-formats TCX --no-calories`
+
+## Load database from device
+
+The sport_data.db file has to be downloaded from the Amazfit Pace or Stratos with ADB. There is a more complex method for non-rooted devices and a very simple for rooted roms. 
+
+### non-rooted devices
+1. connect Pace or Stratos to the pc
+2. execute adb command
+   - Pace: `adb backup -f /export_data.ab -noapk com.huami.watch.sport`
+   - Stratos `adb backup -f /export_data.ab -noapk com.huami.watch.newsport`
+3. `java -jar abe.jar unpack export_data.ab export_data.tar` (abe is android backup extractor which is included inside tools folder)
+4. extract the tar file using tar, 7-Zip, winRAR, ...
+5. navigate to export_data\apps\com.huami.watch.(new)sport\db folder and copy sport_data.db
+
+### rooted rom
+1. connect amazfit to pc
+2. execute adb command
+   - Pace: `adb pull /data/data/com.huami.watch.sport/databases/sport_data.db`
+   - Stratos `adb pull /data/data/com.huami.watch.newsport/databases/sport_data.db`
+
+## CHANGELOG
 
 - V1.0 generates .gpx file for each activity
  
@@ -51,3 +79,5 @@ or if you have a rooted rom, just execute command
 - V2.8 Interpolate cadence if value is missing
 
 - V2.9 Read latitude and longitude as strings from the database to avoid floating point approximation
+
+- V3.0 Add command line arguments
