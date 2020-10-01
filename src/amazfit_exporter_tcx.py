@@ -78,7 +78,10 @@ def add_lap(parent_element, activity):
     end_time = activity['end_time']
     total_time = (end_time - start_time) // 1000
     total_distance = 0
-    calories = activity['calorie'] / 1000
+    if amazfit_exporter_config.no_calories:
+        calories = 0
+    else:
+        calories = activity['calorie'] / 1000
     intensity = "Active"
     trigger_method = "Manual"
     
@@ -126,12 +129,12 @@ def add_trackpoint(parent_element, trackpoint):
     if heart_rate is not None:
         heart_rate_bpm = int(heart_rate[0])
         # include only positive bpm values
-        if heart_rate_bpm > 0:
+        if not amazfit_exporter_config.no_heart_rate and heart_rate_bpm > 0:
             heart_rate_element = create_sub_element(trackpoint_element, "HeartRateBpm")
             create_sub_element(heart_rate_element, "Value", str(heart_rate_bpm))
 
         # cadence just for sport type 'Running'
-        if sport_type == "Running":            
+        if not amazfit_exporter_config.no_cadence and sport_type == "Running":            
             extensions_element = create_sub_element(trackpoint_element, "Extensions")
             trackpointextension_element = create_sub_element(extensions_element, "TPX", namespace="ae")
             STEPS_FOR_CADENCE.append(heart_rate[1])
@@ -139,7 +142,7 @@ def add_trackpoint(parent_element, trackpoint):
             create_sub_element(trackpointextension_element, "RunCadence", text=str(cadence), namespace="ae")
     else:
         # sometimes values are missing. Interpolate cadence from the last recorded values.
-        if sport_type == "Running" and STEPS_FOR_CADENCE:
+        if not amazfit_exporter_config.no_cadence and sport_type == "Running" and STEPS_FOR_CADENCE:
             logger.debug("Heart rate and cadence value missing. Interpolate cadence.")
             extensions_element = create_sub_element(trackpoint_element, "Extensions")
             trackpointextension_element = create_sub_element(extensions_element, "TPX", namespace="ae")
