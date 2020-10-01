@@ -130,7 +130,7 @@ def add_trackpoint(parent_element, trackpoint):
     else:
         # sometimes values are missing. Interpolate cadence from the last recorded values.
         if sport_type == "Running" and STEPS_FOR_CADENCE:
-            logger.debug("HeartRate and cadence value missing. Interpolate cadence.")
+            logger.debug("Heart rate and cadence value missing. Interpolate cadence.")
             extensions_element = create_sub_element(trackpoint_element, "extensions")
             trackpointextension_element = create_sub_element(extensions_element, "TrackPointExtension", namespace="gpxtpx")
             cadence = int(sum(STEPS_FOR_CADENCE) * (60 / len(STEPS_FOR_CADENCE)))
