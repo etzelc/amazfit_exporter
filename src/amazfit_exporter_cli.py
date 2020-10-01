@@ -4,19 +4,42 @@ import argparse
 import amazfit_exporter
 import amazfit_exporter_config
 import datetime
+import logging
 import time
 import os
 
-parser = argparse.ArgumentParser(description='Export data from Amazfit Pace and Stratos database.')
-parser.add_argument('database', type=str, help='the path to the database')
-parser.add_argument('-o', '--output', dest='output', type=str, default='./', help="the export destination path (default: './')")
+# Set logger
+logger = logging.getLogger(__name__)
 
+# Create command line argument parser
+parser = argparse.ArgumentParser(description='Export data from Amazfit Pace and Stratos database.')
+
+# Path to database. Mandatory argument.
+parser.add_argument('database', type=str, help='path to the database')
+
+# Output directory argument
+parser.add_argument('-o', '--output', dest='output', type=str, default='./', help="path to the output directory (default: './')")
+
+# Logging level options
+parser.add_argument('-v', '--verbose', dest='verbose',  action='store_true', default=False, help='print more information about runtime progress')
+parser.add_argument('-d', '--debug', dest='debug',  action='store_true', default=False, help="print debug information about runtime progress. This is more detailed than '--verbose'")
+
+# Version option
 parser.add_argument('--version', action='version', version='Amazfit Exporter 2.10')
   
 args = parser.parse_args()
 
+# First set logging level
+if args.debug:
+    logging.getLogger().setLevel(logging.DEBUG)
+elif args.verbose:
+    logging.getLogger().setLevel(logging.INFO)
+
+logger.info("Input args: %r", args)
+
 db = os.path.abspath(args.database)
 dest = os.path.abspath(args.output)
+
 lstupdtime = 0
 
 print("Exporting database '" + db + "' to '" + dest + "'")
