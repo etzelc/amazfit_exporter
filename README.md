@@ -53,6 +53,36 @@ The `sport_data.db` file has to be downloaded from the Amazfit Pace or Stratos w
 2. execute adb command
    - Pace: `adb pull /data/data/com.huami.watch.sport/databases/sport_data.db`
    - Stratos `adb pull /data/data/com.huami.watch.newsport/databases/sport_data.db`
+   
+## Windows Batch Script `scripts/downloadAndExport.bat`
+The script automates the download and export of the database. Additionally, an optional upload of an empty db to the watch is included.
+It can be called with an optional parameter specifying the export/working directory (default is the current directory of the command window session).
+E.g. `downloadAndExport.bat "D:\myExportDirectory"`
+
+At the top of the script, the paths to several programs like `java`, `adb` or 7-zip have to be defined.
+
+The required files must be organized as follows (this is the default structure of the repository):
+```
+  path/to/folder
+  ├──src
+  │  ├──amazfit_exporter_cli.py
+  │  └──...
+  ├──scripts
+  │  ├──downloadAndExport.bat
+  │  └──...
+  └──tools
+     ├──abe.jar
+     ├──sport_data_empty_stratos.db
+     └──...
+```
+
+For my own setup, I have created an additional batch file in the directory where I want my exported files to be saved. It creates a new directory with the current date (YYYY-MM-DD).
+```
+@cd /d %~dp0
+@set datetimef=%date:~-4%-%date:~3,2%-%date:~0,2%
+@call [pathToScriptsFolder]\downloadAndExport.bat %datetimef%
+pause
+```
 
 ## Changelog
 
@@ -81,3 +111,5 @@ The `sport_data.db` file has to be downloaded from the Amazfit Pace or Stratos w
 - V2.9 Read latitude and longitude as strings from the database to avoid floating point approximation
 
 - V3.0 Add command line arguments
+
+- V4.0 Add script to automate: 1. Download db from watch, 2. Export activities from db 3. Push empty db
