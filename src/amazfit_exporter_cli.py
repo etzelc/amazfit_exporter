@@ -64,8 +64,13 @@ lstupdtime = 0
 
 print("Exporting database '" + db + "' to '" + dest + "'")
 
+# Check if a potential db file exists
+if not os.path.isfile(db):
+    logger.error("Error: Database not found! Check path to database: '%s'", db)
+    sys.exit(1)
+
 lstupd_file = os.path.join(dest, "lstupd.txt")
-if os.path.exists(lstupd_file):
+if os.path.isfile(lstupd_file):
     lstupd_f = open(lstupd_file,'r')
     lstupdtime = int(lstupd_f.read().strip() or 0)
     lstupd_f.close()
