@@ -233,7 +233,6 @@ echo -------------------------------------------------------
 echo ERROR: Push of empty db failed.
 echo        Check console output for additional information.
 
-endlocal
 exit /b 4
 
 :EMPTY_DB_NOT_FOUND
@@ -241,7 +240,6 @@ echo -------------------------------------------------------
 echo ERROR: Empty db not found at '%$EMPTY_DB_PATH%'.
 echo        Check console output for additional information.
 
-endlocal
 exit /b 3
 
 :EXPORT_FAILED
@@ -249,16 +247,13 @@ echo -------------------------------------------------------
 echo ERROR: Export may have failed.
 echo        Check console output for additional information.
 
-endlocal
 exit /b 2
 
 :DB_DOWNLOAD_FAILED
 echo -------------------------------------------------------
 echo ERROR: Download sport_data.db failed.
 
-endlocal
 exit /b 1
 
 :EXIT
-endlocal
 exit /b
