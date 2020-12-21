@@ -112,7 +112,4 @@ pause
 
 - V3.0 Add command line arguments
 
-- V4.0 Add script to automate:
-  1. Download db from watch
-  2. Export activities from db
-  3. Push empty db
+- V4.0 Add script to automate: 1. Download db from watch, 2. Export activities from db 3. Push empty db
