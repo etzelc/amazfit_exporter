@@ -60,31 +60,35 @@ logger.info("Disable cadence: %s", amazfit_exporter_config.no_cadence)
 amazfit_exporter_config.no_calories = args.no_calories
 logger.info("Disable calories: %s", amazfit_exporter_config.no_calories)
 
-lstupdtime = 0
+last_update_time = -1
 
-print("Exporting database '" + db + "' to '" + dest + "'")
+print("Exporting database '" + db + "' to '" + dest + "'.")
 
-# Check if a potential db file exists
+# Check if the db file exists
 if not os.path.isfile(db):
     logger.error("Error: Database not found! Check path to database: '%s'", db)
     sys.exit(1)
 
-lstupd_file = os.path.join(dest, "lstupd.txt")
-if os.path.isfile(lstupd_file):
-    lstupd_f = open(lstupd_file,'r')
-    lstupdtime = int(lstupd_f.read().strip() or 0)
-    lstupd_f.close()
+last_update_file_path = os.path.join(dest, "lstupd.txt")
+if os.path.isfile(last_update_file_path):
+    last_update_file = open(last_update_file_path,'r')
+    last_update_time = int(last_update_file.read().strip() or -1)
+    last_update_file.close()
 
-updtime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(lstupdtime/1000)))
-print ('The last synced activity was at: '+ str(updtime))
-upd_begin_time = input('Press <Enter> to accept, 0 to resync everything>>') or (lstupdtime + 1 if lstupdtime > 0 else 0)
+if last_update_time >= 0:
+    updtime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(int(last_update_time/1000)))
+    print('The last synced activity was at: '+ str(updtime))
+    update_begin_time = input('Press <Enter> to accept, 0 to resync everything >> ') or (last_update_time + 1 if last_update_time >= 0 else 0)
+else:
+    print('No previous sync found: Exporting everything')
+    update_begin_time = 0
 
-new_lstupdtime = amazfit_exporter.start_export(db,dest,int(upd_begin_time))
+new_last_update_time = amazfit_exporter.start_export(db,dest,int(update_begin_time))
 
-# Complete without crashing, check if new activity was synced, so update the last update file for next time
-if new_lstupdtime >= 0:
-    lstupd_f = open(lstupd_file,'w')
-    lstupd_f.write(str(new_lstupdtime))
-    lstupd_f.close()
+# Completed without crashing, check if new activity was synced, so update the last update file for next time
+if new_last_update_time >= 0:
+    last_update_file = open(last_update_file_path,'w')
+    last_update_file.write(str(new_last_update_time))
+    last_update_file.close()
 else:
     print ("Nothing to sync")
