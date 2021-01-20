@@ -130,12 +130,13 @@ echo Download sport_data.db from rooted device.
 echo If it's not responding, reconnect your watch. 
 
 if not exist "%$OUTPUTDIRECTORY%\db" md "%$OUTPUTDIRECTORY%\db"
-%_ADB_EXECUTABLE% devices
-%_ADB_EXECUTABLE% wait-for-device
-%_ADB_EXECUTABLE% pull "/data/data/%$SPORTAPP%/databases/sport_data.db" "%$OUTPUTDIRECTORY%"\db\
-%_ADB_EXECUTABLE% wait-for-device
-%_ADB_EXECUTABLE% kill-server
-%_ADB_EXECUTABLE% wait-for-device
+"%_ADB_EXECUTABLE%" -d kill-server >nul 2>&1
+"%_ADB_EXECUTABLE%" -d start-server >nul 2>&1
+"%_ADB_EXECUTABLE%" -d wait-for-device >nul 2>&1
+"%_ADB_EXECUTABLE%" -d devices >nul 2>&1
+"%_ADB_EXECUTABLE%" -d pull "/data/data/%$SPORTAPP%/databases/sport_data.db" "%$OUTPUTDIRECTORY%"\db\
+"%_ADB_EXECUTABLE%" -d wait-for-device >nul 2>&1
+"%_ADB_EXECUTABLE%" -d kill-server  >nul 2>&1
 if not exist "%$OUTPUTDIRECTORY%\db\sport_data.db" goto DB_DOWNLOAD_FAILED
 goto DB_DOWNLOAD_COMPLETE
 
@@ -145,18 +146,19 @@ echo Download sport_data.db from non rooted device.
 echo If it's not responding, reconnect your watch.
 
 if not exist "%$OUTPUTDIRECTORY%\db" md "%$OUTPUTDIRECTORY%\db"
-"%_ADB_EXECUTABLE%" devices
-"%_ADB_EXECUTABLE%" wait-for-device
-"%_ADB_EXECUTABLE%" backup -f "%$OUTPUTDIRECTORY%\db\export_data.ab" -noapk %$SPORTAPP%
+"%_ADB_EXECUTABLE%" -d kill-server >nul 2>&1
+"%_ADB_EXECUTABLE%" -d start-server >nul 2>&1
+"%_ADB_EXECUTABLE%" -d wait-for-device >nul 2>&1
+"%_ADB_EXECUTABLE%" -d devices >nul 2>&1
+"%_ADB_EXECUTABLE%" -d backup -f "%$OUTPUTDIRECTORY%\db\export_data.ab" -noapk %$SPORTAPP%
+"%_ADB_EXECUTABLE%" -d wait-for-device >nul 2>&1
+"%_ADB_EXECUTABLE%" -d kill-server >nul 2>&1
 "%_JAVA_EXECUTABLE%" -jar "%~dp0..\tools\abe.jar" unpack "%$OUTPUTDIRECTORY%\db\export_data.ab" "%$OUTPUTDIRECTORY%\db\export_data.tar"
 "%_7Z_EXECUTABLE%" x "%$OUTPUTDIRECTORY%\db\export_data.tar" -o"%$OUTPUTDIRECTORY%\db" > NUL
 move /y "%$OUTPUTDIRECTORY%\db\apps\%$SPORTAPP%\db\sport_data.db" "%$OUTPUTDIRECTORY%\db"
 del /q "%$OUTPUTDIRECTORY%\db\export_data.ab" 
 del /q "%$OUTPUTDIRECTORY%\db\export_data.tar" 
 rd /s /q "%$OUTPUTDIRECTORY%\db\apps"
-"%_ADB_EXECUTABLE%" wait-for-device
-"%_ADB_EXECUTABLE%" kill-server
-"%_ADB_EXECUTABLE%" wait-for-device
 if not exist "%$OUTPUTDIRECTORY%\db\sport_data.db" goto DB_DOWNLOAD_FAILED
 
 :DB_DOWNLOAD_COMPLETE
@@ -168,7 +170,7 @@ echo -------------------------------------------------------
 echo Export options for Python Amazfit Exporter:
 echo -------------------------------------------------------
 
-%_PYTHON_EXECUTABLE% "%~dp0..\src\amazfit_exporter_cli.py" --help
+"%_PYTHON_EXECUTABLE%" "%~dp0..\src\amazfit_exporter_cli.py" --help
  
 echo -------------------------------------------------------
 echo The path to the db should not be changed!
@@ -180,7 +182,7 @@ echo -------------------------------------------------------
 
 @echo on
 
-%_PYTHON_EXECUTABLE% "%~dp0..\src\amazfit_exporter_cli.py" "%$OUTPUTDIRECTORY%\db\sport_data.db" -o "%$OUTPUTDIRECTORY%" %$EXPORTER_OPTIONS% 
+"%_PYTHON_EXECUTABLE%" "%~dp0..\src\amazfit_exporter_cli.py" "%$OUTPUTDIRECTORY%\db\sport_data.db" -o "%$OUTPUTDIRECTORY%" %$EXPORTER_OPTIONS% 
 
 @echo off
 
@@ -195,7 +197,7 @@ REM Empty db upload currently only available for rooted
 REM Stratos, as I don't have an empty DB for Pace.
 if "%$EMPTY_DB_PATH%" == "" goto EXIT
 echo -------------------------------------------------------
-echo Push an empty db to your device?
+echo Push an empty db to your device (incl. a reboot)?
 
 set /P $PUSH_EMPTY_DB=Type Y/N and press Enter:   
 if /I "%$PUSH_EMPTY_DB%"=="Y" goto PUSH_EMPTY_DB
@@ -210,16 +212,18 @@ goto CHOOSE_EMPTY_DB_PUSH
 
 :PUSH_EMPTY_DB
 echo -------------------------------------------------------
-echo Pushing empty db to your device. 
+echo Pushing empty db to your device and rebooting. 
 echo If it's not responding, reconnect your watch. 
 
 if not exist "%$EMPTY_DB_PATH%" goto EMPTY_DB_NOT_FOUND
-%_ADB_EXECUTABLE% devices
-%_ADB_EXECUTABLE% wait-for-device
-%_ADB_EXECUTABLE% push "%$EMPTY_DB_PATH%" /data/data/%$SPORTAPP%/databases/sport_data.db
-%_ADB_EXECUTABLE% wait-for-device
-%_ADB_EXECUTABLE% kill-server
-%_ADB_EXECUTABLE% wait-for-device
+"%_ADB_EXECUTABLE%" -d kill-server >nul 2>&1
+"%_ADB_EXECUTABLE%" -d start-server >nul 2>&1
+"%_ADB_EXECUTABLE%" -d wait-for-device >nul 2>&1
+"%_ADB_EXECUTABLE%" -d devices >nul 2>&1
+"%_ADB_EXECUTABLE%" -d push "%$EMPTY_DB_PATH%" /data/data/%$SPORTAPP%/databases/sport_data.db
+"%_ADB_EXECUTABLE%" -d reboot
+"%_ADB_EXECUTABLE%" -d wait-for-device >nul 2>&1
+"%_ADB_EXECUTABLE%" -d kill-server >nul 2>&1
 
 if not %errorlevel% == 0 goto PUSH_EMPTY_DB_FAILED
 
